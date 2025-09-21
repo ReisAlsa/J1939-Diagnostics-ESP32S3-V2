@@ -1,0 +1,11 @@
+# Dependency directories
+lib/
+
+# PlatformIO
+.pio/
+.piolibdeps/
+.pioenvs/
+
+# VSCode
+.vscode/
+.history/
