@@ -21,6 +21,7 @@ void MainMenuScreen::create(UIManager* uim) {
     // Define os itens do menu no vector membro da classe
     menu_items = {
         {"Diagnostico",       [this](lv_event_t* e) { this->ui_manager->switch_to("VehicleSelect"); }}, // Alterado para ir para a seleção de veículo
+        {"Relatorios",        [this](lv_event_t* e) { this->ui_manager->switch_to("ReportList"); }},
         {"Configuracao",      [this](lv_event_t* e) { this->ui_manager->switch_to("Config"); }},
         {"Sobre",             [this](lv_event_t* e) { this->ui_manager->switch_to("About"); }},
         {"Desligar",          [](lv_event_t* event) {

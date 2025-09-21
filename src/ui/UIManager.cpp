@@ -9,6 +9,14 @@
 #include "DiagnosticsInProgressScreen.h"
 #include "LicenseScreen.h"
 #include "VehicleSelectScreen.h"
+#include "EcuMenuScreen.h" // Incluir o novo ecrã
+#include "ReportScreen.h"  // Incluir o ecrã de relatório
+#include "ReportListScreen.h"
+#include "ReportViewerScreen.h"
+#include "ErrorListScreen.h"
+#include "EcuIdScreen.h"
+#include "LiveValuesScreen.h"
+#include "GraphScreen.h"
 
 void UIManager::init() {
     // Registra todas as telas da aplicação
@@ -22,6 +30,14 @@ void UIManager::init() {
     add_screen("DiagnosticsInProgress", std::make_unique<DiagnosticsInProgressScreen>());
     add_screen("License", std::make_unique<LicenseScreen>());
     add_screen("VehicleSelect", std::make_unique<VehicleSelectScreen>());
+    add_screen("EcuMenu", std::make_unique<EcuMenuScreen>()); // Registrar o novo ecrã
+    add_screen("Report", std::make_unique<ReportScreen>());   // Registrar o ecrã de relatório
+    add_screen("ReportList", std::make_unique<ReportListScreen>());
+    add_screen("ReportViewer", std::make_unique<ReportViewerScreen>());
+    add_screen("ErrorList", std::make_unique<ErrorListScreen>());
+    add_screen("EcuId", std::make_unique<EcuIdScreen>());
+    add_screen("LiveValues", std::make_unique<LiveValuesScreen>());
+    add_screen("Graph", std::make_unique<GraphScreen>());
 
     // Manda criar os objetos LVGL de todas as telas
     create_all_screens();

@@ -14,6 +14,8 @@
  * - Executar o loop principal.
  */
 
+#define LV_MEM_CUSTOM 1
+
 #include <Arduino.h>
 #include <lvgl.h>
 #include "LGFX_setup.h"
@@ -23,6 +25,32 @@
 #include "common/DatabaseManager.h"
 #include "common/CLIManager.h"
 #include "common/LicenseManager.h"
+#include <esp_heap_caps.h>
+
+#if LV_MEM_CUSTOM
+/**
+ * @brief Aloca memória para o LVGL especificamente na PSRAM.
+ * Esta função é chamada pelo LVGL sempre que precisa de memória.
+ */
+void *lv_mem_custom_alloc(size_t size) {
+    // Tenta alocar na PSRAM. MALLOC_CAP_SPIRAM é a flag para PSRAM.
+    return heap_caps_malloc(size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+}
+
+/**
+ * @brief Liberta a memória alocada para o LVGL.
+ */
+void lv_mem_custom_free(void *ptr) {
+    heap_caps_free(ptr);
+}
+
+/**
+ * @brief Realoca um bloco de memória para o LVGL na PSRAM.
+ */
+void *lv_mem_custom_realloc(void *ptr, size_t new_size) {
+    return heap_caps_realloc(ptr, new_size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+}
+#endif
 
 UIManager uiManager;
 
@@ -32,6 +60,13 @@ void setup()
   // Espera um pouco para a porta serial estabilizar
   delay(1000); 
   Serial.println("\n--- Ferramenta de Diagnostico J1939 a iniciar ---");
+
+        // Verifica se a PSRAM foi encontrada e inicializada com sucesso
+    if (psramFound()) {
+        LV_LOG_USER("PSRAM OK. Total: %d bytes, Free: %d bytes", ESP.getPsramSize(), ESP.getFreePsram());
+    } else {
+        LV_LOG_ERROR("PSRAM not found or failed to initialize!");
+    }
 
   // Inicializa o gestor da base de dados
   databaseManager.begin();

@@ -2,11 +2,11 @@
 
 #include <lvgl.h>
 #include "LGFX_setup.h"
+#include <esp_heap_caps.h>
 
 static const uint32_t screenWidth = 480;
 static const uint32_t screenHeight = 480;
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[screenWidth * 20];
 
 /* Callback para enviar o buffer de desenho para o display */
 static void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
@@ -34,7 +34,24 @@ static void my_touchpad_read(lv_indev_drv_t *indev_driver, lv_indev_data_t *data
 static void setup_lvgl_drivers(void)
 {
   lv_init();
-  lv_disp_draw_buf_init(&draw_buf, buf, NULL, screenWidth * 20);
+
+  // Otimização: Alocar os buffers de desenho na PSRAM para libertar a RAM interna.
+  // Usamos double buffering para melhor performance.
+  // Um tamanho de 1/10 do ecrã por buffer é um bom ponto de partida.
+  const uint32_t buf_size = screenWidth * screenHeight / 10;
+
+  // Aloca o primeiro buffer na PSRAM
+  lv_color_t* buf1 = (lv_color_t*)heap_caps_malloc(buf_size * sizeof(lv_color_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  if (!buf1) {
+    LV_LOG_ERROR("Falha ao alocar o buffer de desenho 1 na PSRAM!");
+  }
+
+  // Aloca o segundo buffer na PSRAM
+  lv_color_t* buf2 = (lv_color_t*)heap_caps_malloc(buf_size * sizeof(lv_color_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+  if (!buf2) {
+    LV_LOG_ERROR("Falha ao alocar o buffer de desenho 2 na PSRAM!");
+  }
+  lv_disp_draw_buf_init(&draw_buf, buf1, buf2, buf_size);
 
   static lv_disp_drv_t disp_drv;
   lv_disp_drv_init(&disp_drv);
